@@ -7,7 +7,7 @@
         <?php if($field->required): ?> <span class="text-danger">*</span> <?php endif; ?>
     </label>
     <input type="<?= $field->getType() ?>" 
-           name="<?= $field->name ?>" 
+           name="<?= $field->getName() ?>" 
            class="form-control <?= !empty($error) ? 'is-invalid' : '' ?>"
            value="<?= htmlspecialchars($value ?? '') ?>"
            <?= $field->required ? 'required' : '' ?>

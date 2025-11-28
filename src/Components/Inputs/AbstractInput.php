@@ -25,6 +25,35 @@ abstract class AbstractInput implements Renderable
         return new static($name, $label);
     }
 
+    
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function getLabel(): string
+    {
+        return $this->label;
+    }
+
+    public function isRequired(): bool
+    {
+        return $this->required;
+    }
+
+    /**
+     * MAGIC METHOD QUAN TRỌNG
+     * Cho phép View truy cập $field->label, $field->required
+     * dù chúng là property protected.
+     */
+    public function __get($prop)
+    {
+        if (property_exists($this, $prop)) {
+            return $this->$prop;
+        }
+        return null;
+    }
+
     public function required(bool $required = true): self
     {
         $this->required = $required;
