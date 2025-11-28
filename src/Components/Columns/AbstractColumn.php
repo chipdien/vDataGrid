@@ -13,6 +13,7 @@ abstract class AbstractColumn implements ColumnInterface
     protected string $label;      // Tên hiển thị
     protected bool $sortable = false;
     protected int $filterLocation = 3; // 3 = BOTH (Ví dụ)
+    protected $formatter = null; 
 
     public function __construct(string $name, ?string $label = null)
     {
@@ -42,10 +43,21 @@ abstract class AbstractColumn implements ColumnInterface
         return $this;
     }
 
+    public function format(callable $callback): self
+    {
+        $this->formatter = $callback;
+        return $this;
+    }
+
     // Hàm render chính (Gọi từ Interface Renderable)
     // Mặc định render cell, nhưng có thể mở rộng
     public function render(array $data = []): string 
     {
+        // Nếu người dùng đã set format tùy chỉnh, dùng nó ngay lập tức
+        if ($this->formatter && is_callable($this->formatter)) {
+            return call_user_func($this->formatter, $data);
+        }
+        
         return $this->renderCell($data);
     }
 
