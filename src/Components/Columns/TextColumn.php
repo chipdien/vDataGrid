@@ -4,22 +4,37 @@ namespace VGrid\Components\Columns;
 
 class TextColumn extends AbstractColumn
 {
-    /**
-     * Override hàm renderCell của cha.
-     * Nhiệm vụ: Lấy value và gọi view.
-     */
+    protected bool $copyable = false;
+    protected int $limit = 0; // Giới hạn ký tự hiển thị (0 = không giới hạn)
+
+    public function copyable(bool $enable = true): self
+    {
+        $this->copyable = $enable;
+        return $this;
+    }
+
+    public function limit(int $chars): self
+    {
+        $this->limit = $chars;
+        return $this;
+    }
+
     public function renderCell(array $row): string
     {
-        // 1. Lấy giá trị từ mảng dữ liệu (Safely)
         $value = $row[$this->name] ?? '';
+        
+        // Xử lý cắt chuỗi nếu quá dài
+        $displayValue = $value;
+        if ($this->limit > 0 && mb_strlen($value) > $this->limit) {
+            $displayValue = mb_substr($value, 0, $this->limit) . '...';
+        }
 
-        // 2. Gọi ViewResolver để render
-        // Mặc định sẽ tìm file: views/bootstrap5/columns/text.php
-        // Lưu ý: Đường dẫn view nên để tương đối hoặc dùng config, ở đây tôi hardcode mẫu
         return $this->resolveView(
-            __DIR__ . '/../../../views/bootstrap5/columns/text.php', 
+            __DIR__ . '/../../../views/bootstrap5/columns/text.php',
             [
-                'value' => $value,
+                'value' => $value, // Giá trị gốc (để copy)
+                'displayValue' => $displayValue, // Giá trị hiển thị
+                'copyable' => $this->copyable,
                 'row'   => $row
             ]
         );
