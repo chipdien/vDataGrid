@@ -14,6 +14,12 @@ abstract class AbstractInput implements Renderable
     protected mixed $value = null;
     protected bool $required = false;
 
+    // Mặc định chiếm 12/12 cột (100% width)
+    protected int $colSpan = 12; 
+
+    // Biến tạm để lưu tên đã bị override (dùng cho repeater)
+    protected ?string $overriddenName = null;
+
     public function __construct(string $name, string $label)
     {
         $this->name = $name;
@@ -25,10 +31,19 @@ abstract class AbstractInput implements Renderable
         return new static($name, $label);
     }
 
-    
+    /**
+     * Cho phép đổi tên field tạm thời (Dùng cho Repeater render template)
+     */
+    public function overrideName(string $newName): self
+    {
+        $this->overriddenName = $newName;
+        return $this;
+    }
+
     public function getName(): string
     {
-        return $this->name;
+        // Ưu tiên trả về tên đã override nếu có
+        return $this->overriddenName ?? $this->name;
     }
 
     public function getLabel(): string
@@ -64,6 +79,24 @@ abstract class AbstractInput implements Renderable
     {
         $this->value = $value;
         return $this;
+    }
+
+    /**
+     * Cấu hình độ rộng cột (Hệ thống 12 cột của Bootstrap).
+     * ->span(6) = 50%
+     * ->span(4) = 33%
+     * ->span(3) = 25%
+     */
+    public function span(int $span): self
+    {
+        // Đảm bảo trong khoảng 1-12
+        $this->colSpan = max(1, min(12, $span));
+        return $this;
+    }
+
+    public function getColSpan(): int
+    {
+        return $this->colSpan;
     }
 
     // Hàm render chính gọi view
